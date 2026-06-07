@@ -123,7 +123,7 @@ export default function DashboardView() {
     <div className="space-y-8 select-none">
       
       {/* Overview Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {/* Total Frames */}
         <div className="glass-panel p-6 rounded border border-white/5 relative overflow-hidden flex flex-col justify-between h-32">
           <div className="absolute top-0 right-0 w-16 h-16 bg-[radial-gradient(circle,rgba(212,175,55,0.08)_0%,transparent_70%)]" />

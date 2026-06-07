@@ -81,7 +81,7 @@ export default function AdminPage() {
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="max-w-md w-full glass-panel border border-[#D4AF37]/20 p-8 rounded shadow-2xl relative"
+          className="max-w-md w-full glass-panel border border-[#D4AF37]/20 p-6 sm:p-8 rounded shadow-2xl relative"
         >
           {/* Top decorative borders */}
           <div className="absolute top-0 left-0 w-3.5 h-3.5 border-t-2 border-l-2 border-[#D4AF37]" />
@@ -151,43 +151,53 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-[#080808] text-white flex flex-col">
       {/* Admin header */}
-      <header className="glass-panel border-b border-white/5 py-4 px-6 md:px-12 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <span className="text-lg md:text-xl font-bold tracking-wider font-serif gold-text-gradient">
-            YR DIGITAL MEMORIES
-          </span>
-          <span className="bg-white/10 text-white/60 text-[9px] uppercase tracking-widest px-2.5 py-1 rounded font-semibold border border-white/5">
-            Admin Registry
-          </span>
+      <header className="glass-panel border-b border-white/5 py-4 px-4 sm:px-6 md:px-12 flex flex-col lg:flex-row items-center justify-between gap-4">
+        <div className="flex items-center justify-between w-full lg:w-auto gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="text-base sm:text-lg md:text-xl font-bold tracking-wider font-serif gold-text-gradient">
+              YR DIGITAL MEMORIES
+            </span>
+            <span className="bg-white/10 text-white/60 text-[9px] uppercase tracking-widest px-2 py-0.5 sm:px-2.5 sm:py-1 rounded font-semibold border border-white/5">
+              Admin
+            </span>
+          </div>
+          
+          {/* Sign Out Button for mobile */}
+          <button 
+            onClick={handleSignOut}
+            className="lg:hidden flex items-center gap-1.5 text-[9px] uppercase tracking-widest font-bold text-red-400 border border-red-500/20 hover:bg-red-500/10 px-3 py-2 rounded transition-all cursor-pointer"
+          >
+            <LogOut className="w-3 h-3" /> Sign Out
+          </button>
         </div>
 
         {/* Tab Controls */}
-        <div className="flex items-center bg-black/40 border border-white/5 p-1 rounded gap-1">
+        <div className="flex items-center bg-black/40 border border-white/5 p-1 rounded gap-1 w-full lg:w-auto justify-around sm:justify-center">
           <button 
             onClick={() => setActiveTab('dashboard')}
-            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded text-xs uppercase tracking-widest font-bold transition-all cursor-pointer ${activeTab === 'dashboard' ? 'bg-[#D4AF37] text-black' : 'text-white/60 hover:text-white'}`}
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 sm:px-5 py-2 rounded text-[10px] sm:text-xs uppercase tracking-widest font-bold transition-all cursor-pointer ${activeTab === 'dashboard' ? 'bg-[#D4AF37] text-black' : 'text-white/60 hover:text-white'}`}
           >
             <LayoutDashboard className="w-3.5 h-3.5" /> 
-            <span className="hidden sm:inline">Overview</span>
+            <span>Overview</span>
           </button>
           <button 
             onClick={() => setActiveTab('add')}
-            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded text-xs uppercase tracking-widest font-bold transition-all cursor-pointer ${activeTab === 'add' ? 'bg-[#D4AF37] text-black' : 'text-white/60 hover:text-white'}`}
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 sm:px-5 py-2 rounded text-[10px] sm:text-xs uppercase tracking-widest font-bold transition-all cursor-pointer ${activeTab === 'add' ? 'bg-[#D4AF37] text-black' : 'text-white/60 hover:text-white'}`}
           >
             <PlusCircle className="w-3.5 h-3.5" /> 
-            <span className="hidden sm:inline">Add Memory</span>
+            <span>Add Memory</span>
           </button>
           <button 
             onClick={() => setActiveTab('manage')}
-            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded text-xs uppercase tracking-widest font-bold transition-all cursor-pointer ${activeTab === 'manage' ? 'bg-[#D4AF37] text-black' : 'text-white/60 hover:text-white'}`}
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 sm:px-5 py-2 rounded text-[10px] sm:text-xs uppercase tracking-widest font-bold transition-all cursor-pointer ${activeTab === 'manage' ? 'bg-[#D4AF37] text-black' : 'text-white/60 hover:text-white'}`}
           >
             <Database className="w-3.5 h-3.5" /> 
-            <span className="hidden sm:inline">Manage</span>
+            <span>Manage</span>
           </button>
         </div>
 
-        {/* Sign Out Button */}
-        <div>
+        {/* Sign Out Button for desktop layout */}
+        <div className="hidden lg:block">
           <button 
             onClick={handleSignOut}
             className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-red-400 border border-red-500/20 hover:bg-red-500/10 px-4 py-2 rounded transition-all cursor-pointer"

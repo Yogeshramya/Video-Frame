@@ -301,88 +301,175 @@ export default function ManageMemoriesTable() {
           <p className="text-xs text-white/30 mt-1">Click &quot;Add Memory&quot; to upload your first client frame image and wedding video.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded border border-white/5 bg-black/30">
-          <table className="min-w-full text-left border-collapse text-xs">
-            <thead>
-              <tr className="border-b border-white/5 bg-black/50 text-[#D4AF37] uppercase tracking-wider font-semibold font-serif text-[10px]">
-                <th className="px-6 py-4">Thumbnail</th>
-                <th className="px-6 py-4">Customer Name</th>
-                <th className="px-6 py-4">Memory Title</th>
-                <th className="px-6 py-4 text-center">Scan Count</th>
-                <th className="px-6 py-4">Created Date</th>
-                <th className="px-6 py-4 text-center">Status</th>
-                <th className="px-6 py-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {memories.map((memory) => {
-                const date = new Date(memory.created_at).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
-                });
+        <>
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto rounded border border-white/5 bg-black/30">
+            <table className="min-w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-white/5 bg-black/50 text-[#D4AF37] uppercase tracking-wider font-semibold font-serif text-[10px]">
+                  <th className="px-6 py-4">Thumbnail</th>
+                  <th className="px-6 py-4">Customer Name</th>
+                  <th className="px-6 py-4">Memory Title</th>
+                  <th className="px-6 py-4 text-center">Scan Count</th>
+                  <th className="px-6 py-4">Created Date</th>
+                  <th className="px-6 py-4 text-center">Status</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {memories.map((memory) => {
+                  const date = new Date(memory.created_at).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                  });
 
-                return (
-                  <tr key={memory.id} className="hover:bg-white/[0.02] transition-colors">
-                    {/* Thumbnail */}
-                    <td className="px-6 py-4">
-                      <div className="w-12 h-9 rounded overflow-hidden border border-white/10 bg-zinc-900">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img 
-                          src={memory.image_url} 
-                          alt={memory.customer_name} 
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    </td>
+                  return (
+                    <tr key={memory.id} className="hover:bg-white/[0.02] transition-colors">
+                      {/* Thumbnail */}
+                      <td className="px-6 py-4">
+                        <div className="w-12 h-9 rounded overflow-hidden border border-white/10 bg-zinc-900">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img 
+                            src={memory.image_url} 
+                            alt={memory.customer_name} 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </td>
 
-                    {/* Customer Name */}
-                    <td className="px-6 py-4 font-semibold text-white/90">{memory.customer_name}</td>
+                      {/* Customer Name */}
+                      <td className="px-6 py-4 font-semibold text-white/90">{memory.customer_name}</td>
 
-                    {/* Memory Title */}
-                    <td className="px-6 py-4 text-white/60 font-light">{memory.memory_title}</td>
+                      {/* Memory Title */}
+                      <td className="px-6 py-4 text-white/60 font-light">{memory.memory_title}</td>
 
-                    {/* Scan Count */}
-                    <td className="px-6 py-4 text-center text-[#D4AF37] font-bold">{memory.scan_count}</td>
+                      {/* Scan Count */}
+                      <td className="px-6 py-4 text-center text-[#D4AF37] font-bold">{memory.scan_count}</td>
 
-                    {/* Created Date */}
-                    <td className="px-6 py-4 text-white/50">{date}</td>
+                      {/* Created Date */}
+                      <td className="px-6 py-4 text-white/50">{date}</td>
 
-                    {/* Status Toggle Badge */}
-                    <td className="px-6 py-4 text-center">
+                      {/* Status Toggle Badge */}
+                      <td className="px-6 py-4 text-center">
+                        <button 
+                          onClick={() => handleToggleStatus(memory.id, memory.status)}
+                          className={`px-3 py-1 rounded-full text-[9px] uppercase tracking-widest font-bold border transition-colors cursor-pointer ${
+                            memory.status === 'active' 
+                              ? 'border-[#D4AF37]/30 text-[#D4AF37] bg-[#D4AF37]/5 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400' 
+                              : 'border-white/10 text-white/40 hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]/30 hover:text-[#D4AF37]'
+                          }`}
+                        >
+                          {memory.status === 'active' ? 'Active' : 'Disabled'}
+                        </button>
+                      </td>
+
+                      {/* Actions buttons */}
+                      <td className="px-6 py-4 text-right space-x-2">
+                        <a href={`/watch/${memory.id}`} target="_blank" rel="noopener noreferrer">
+                          <button className="p-2 text-white/40 hover:text-[#D4AF37] bg-white/5 hover:bg-white/10 border border-white/10 rounded transition-colors cursor-pointer inline-flex items-center" title="Watch Video">
+                            <Eye className="w-4 h-4" />
+                          </button>
+                        </a>
+                        <button 
+                          onClick={() => handleDeleteMemory(memory)}
+                          className="p-2 text-white/40 hover:text-red-400 bg-white/5 hover:bg-red-500/15 border border-white/10 hover:border-red-500/20 rounded transition-colors cursor-pointer inline-flex items-center" 
+                          title="Delete Memory"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Card Grid View */}
+          <div className="block md:hidden space-y-4">
+            {memories.map((memory) => {
+              const date = new Date(memory.created_at).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+              });
+
+              return (
+                <div 
+                  key={memory.id} 
+                  className="glass-panel p-5 rounded border border-white/5 bg-black/30 flex flex-col gap-4 relative overflow-hidden text-xs"
+                >
+                  {/* Gold corner accents */}
+                  <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#D4AF37]/20" />
+                  <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-[#D4AF37]/20" />
+                  <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-[#D4AF37]/20" />
+                  <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-[#D4AF37]/20" />
+
+                  {/* Header (Thumbnail & Names) */}
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-12 rounded overflow-hidden border border-white/10 bg-zinc-900 flex-shrink-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img 
+                        src={memory.image_url} 
+                        alt={memory.customer_name} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-sm font-semibold text-white/90 truncate">{memory.customer_name}</h3>
+                      <p className="text-[11px] text-white/50 truncate font-light mt-0.5">{memory.memory_title}</p>
+                    </div>
+                  </div>
+
+                  {/* Details list */}
+                  <div className="grid grid-cols-2 gap-4 border-y border-white/5 py-3 text-[10px] uppercase tracking-wider font-semibold">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-white/30 text-[8px] tracking-widest">Scan Count</span>
+                      <span className="text-[#D4AF37] font-bold text-xs">{memory.scan_count} scans</span>
+                    </div>
+                    <div className="flex flex-col gap-1 items-end">
+                      <span className="text-white/30 text-[8px] tracking-widest">Created Date</span>
+                      <span className="text-white/70 font-light text-right">{date}</span>
+                    </div>
+                  </div>
+
+                  {/* Status Toggle & Actions */}
+                  <div className="flex items-center justify-between gap-4 mt-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-white/30 text-[8px] uppercase tracking-widest font-semibold mr-1">Status:</span>
                       <button 
                         onClick={() => handleToggleStatus(memory.id, memory.status)}
-                        className={`px-3 py-1 rounded-full text-[9px] uppercase tracking-widest font-bold border transition-colors cursor-pointer ${
+                        className={`px-3 py-1.5 rounded-full text-[9px] uppercase tracking-widest font-bold border transition-colors cursor-pointer ${
                           memory.status === 'active' 
-                            ? 'border-[#D4AF37]/30 text-[#D4AF37] bg-[#D4AF37]/5 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400' 
-                            : 'border-white/10 text-white/40 hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]/30 hover:text-[#D4AF37]'
+                            ? 'border-[#D4AF37]/30 text-[#D4AF37] bg-[#D4AF37]/5' 
+                            : 'border-white/10 text-white/40'
                         }`}
                       >
                         {memory.status === 'active' ? 'Active' : 'Disabled'}
                       </button>
-                    </td>
+                    </div>
 
-                    {/* Actions buttons */}
-                    <td className="px-6 py-4 text-right space-x-2">
+                    <div className="flex items-center gap-2">
                       <a href={`/watch/${memory.id}`} target="_blank" rel="noopener noreferrer">
-                        <button className="p-2 text-white/40 hover:text-[#D4AF37] bg-white/5 hover:bg-white/10 border border-white/10 rounded transition-colors cursor-pointer inline-flex items-center" title="Watch Video">
+                        <button className="p-2.5 text-white/50 hover:text-[#D4AF37] bg-white/5 border border-white/10 rounded transition-colors cursor-pointer inline-flex items-center" title="Watch Video">
                           <Eye className="w-4 h-4" />
                         </button>
                       </a>
                       <button 
                         onClick={() => handleDeleteMemory(memory)}
-                        className="p-2 text-white/40 hover:text-red-400 bg-white/5 hover:bg-red-500/15 border border-white/10 hover:border-red-500/20 rounded transition-colors cursor-pointer inline-flex items-center" 
+                        className="p-2.5 text-white/50 hover:text-red-400 bg-white/5 border border-white/10 hover:border-red-500/20 rounded transition-colors cursor-pointer inline-flex items-center" 
                         title="Delete Memory"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
 
     </div>

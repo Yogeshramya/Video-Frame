@@ -44,9 +44,9 @@ export default function HomePage() {
       <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(212,175,55,0.03)_0%,transparent_70%)] pointer-events-none" />
 
       {/* Navigation Bar */}
-      <nav className="sticky top-0 z-50 glass-panel border-b border-white/5 py-4 px-6 md:px-12 flex items-center justify-between">
+      <nav className="sticky top-0 z-50 glass-panel border-b border-white/5 py-4 px-4 sm:px-6 md:px-12 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <span className="text-xl md:text-2xl font-bold tracking-wider font-serif gold-text-gradient">
+          <span className="text-[15px] min-[375px]:text-lg sm:text-xl md:text-2xl font-bold tracking-wider font-serif gold-text-gradient">
             YR DIGITAL MEMORIES
           </span>
         </Link>
@@ -106,7 +106,7 @@ export default function HomePage() {
       </AnimatePresence>
 
       {/* Hero Section */}
-      <section className="relative px-6 py-20 md:py-32 max-w-7xl mx-auto flex flex-col items-center text-center">
+      <section className="relative px-4 sm:px-6 py-16 sm:py-20 md:py-32 max-w-7xl mx-auto flex flex-col items-center text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -117,7 +117,7 @@ export default function HomePage() {
             <Sparkles className="w-3.5 h-3.5" /> Augmented Reality Frame Platform
           </div>
           <h1 className="text-4xl md:text-7xl font-extrabold font-serif tracking-wide leading-tight max-w-4xl">
-            Bring Your Printed <br />
+            Bring Your Printed <br className="hidden sm:inline" />
             <span className="gold-text-gradient">Photo Frames</span> to Life
           </h1>
           <p className="text-gray-400 text-base md:text-xl max-w-2xl font-light leading-relaxed">
@@ -139,7 +139,7 @@ export default function HomePage() {
       </section>
 
       {/* How it Works Section */}
-      <section id="how-it-works" className="py-24 px-6 bg-[#0c0c0c] border-y border-white/5">
+      <section id="how-it-works" className="py-16 sm:py-24 px-4 sm:px-6 bg-[#0c0c0c] border-y border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold font-serif gold-text-gradient uppercase tracking-wider">How It Works</h2>
@@ -149,7 +149,7 @@ export default function HomePage() {
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* Step 1 */}
-            <div className="w-full glass-panel-gold p-8 rounded flex flex-col gap-5 hover:border-[#D4AF37]/50 transition-all group">
+            <div className="w-full glass-panel-gold p-6 sm:p-8 rounded flex flex-col gap-5 hover:border-[#D4AF37]/50 transition-all group">
               <div className="w-12 h-12 rounded bg-[#D4AF37]/10 flex items-center justify-center text-[#D4AF37] group-hover:scale-110 transition-transform">
                 <Upload className="w-6 h-6" />
               </div>
@@ -161,7 +161,7 @@ export default function HomePage() {
             </div>
 
             {/* Step 2 */}
-            <div className="glass-panel-gold p-8 rounded flex flex-col gap-5 hover:border-[#D4AF37]/50 transition-all group">
+            <div className="glass-panel-gold p-6 sm:p-8 rounded flex flex-col gap-5 hover:border-[#D4AF37]/50 transition-all group">
               <div className="w-12 h-12 rounded bg-[#D4AF37]/10 flex items-center justify-center text-[#D4AF37] group-hover:scale-110 transition-transform">
                 <Camera className="w-6 h-6" />
               </div>
@@ -173,7 +173,7 @@ export default function HomePage() {
             </div>
 
             {/* Step 3 */}
-            <div className="glass-panel-gold p-8 rounded flex flex-col gap-5 hover:border-[#D4AF37]/50 transition-all group">
+            <div className="glass-panel-gold p-6 sm:p-8 rounded flex flex-col gap-5 hover:border-[#D4AF37]/50 transition-all group">
               <div className="w-12 h-12 rounded bg-[#D4AF37]/10 flex items-center justify-center text-[#D4AF37] group-hover:scale-110 transition-transform">
                 <Play className="w-6 h-6" />
               </div>
@@ -190,7 +190,7 @@ export default function HomePage() {
 
 
       {/* Contact Section */}
-      <section id="contact" className="py-24 px-6 bg-[#0c0c0c] border-t border-white/5">
+      <section id="contact" className="py-16 sm:py-24 px-4 sm:px-6 bg-[#0c0c0c] border-t border-white/5">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-5xl font-bold font-serif gold-text-gradient uppercase tracking-wider">Inquire & Order</h2>

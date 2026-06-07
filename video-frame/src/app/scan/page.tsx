@@ -279,10 +279,10 @@ export default function ScannerPage() {
     <div className="relative min-h-screen bg-black text-white overflow-hidden flex flex-col justify-between">
       
       {/* Background/Camera UI Overlay */}
-      <div className="absolute top-6 left-6 z-20">
+      <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20">
         <Link href="/">
-          <button className="flex items-center gap-2 text-xs uppercase tracking-widest font-bold bg-black/60 backdrop-blur-md border border-white/10 px-4 py-2.5 rounded hover:text-[#D4AF37] transition-colors cursor-pointer">
-            <ArrowLeft className="w-4 h-4" /> Home
+          <button className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs uppercase tracking-widest font-bold bg-black/60 backdrop-blur-md border border-white/10 px-3 py-2 sm:px-4 sm:py-2.5 rounded hover:text-[#D4AF37] transition-colors cursor-pointer">
+            <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Home
           </button>
         </Link>
       </div>
@@ -322,14 +322,14 @@ export default function ScannerPage() {
 
       {/* Target Reticle Overlay during scanning */}
       {scriptsLoaded && isScanning && (
-        <div className="absolute inset-0 z-10 flex flex-col justify-between items-center p-8 pointer-events-none">
+        <div className="absolute inset-0 z-10 flex flex-col justify-between items-center p-6 sm:p-8 pointer-events-none">
           {/* Top scanning header */}
-          <div className="bg-black/50 backdrop-blur-sm border border-white/5 rounded-full px-6 py-2 mt-20 text-xs font-semibold uppercase tracking-widest text-[#D4AF37] flex items-center gap-2">
+          <div className="bg-black/50 backdrop-blur-sm border border-white/5 rounded-full px-4 py-1.5 sm:px-6 sm:py-2 mt-20 text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-[#D4AF37] flex items-center gap-1.5 sm:gap-2">
             <Camera className="w-3.5 h-3.5 animate-pulse" /> Point camera at physical frame
           </div>
 
           {/* Central reticle design */}
-          <div className="relative w-64 h-64 md:w-80 md:h-80 border-2 border-white/10 rounded-lg flex items-center justify-center">
+          <div className="relative w-56 h-56 min-[375px]:w-64 min-[375px]:h-64 md:w-80 md:h-80 border-2 border-white/10 rounded-lg flex items-center justify-center">
             {/* Custom bracket corners */}
             <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#D4AF37] rounded-tl" />
             <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#D4AF37] rounded-tr" />
@@ -341,7 +341,7 @@ export default function ScannerPage() {
           </div>
 
           {/* Footer search message */}
-          <div className="text-[11px] text-white/50 tracking-wider bg-black/40 px-5 py-2 rounded-full border border-white/5">
+          <div className="text-[10px] sm:text-[11px] text-white/50 tracking-wider bg-black/40 px-4 py-1.5 sm:px-5 sm:py-2 rounded-full border border-white/5">
             Searching for active photo frames...
           </div>
         </div>
