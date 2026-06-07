@@ -24,11 +24,17 @@
   --font-sans: var(--font-sans);
 }
 
+html {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   overflow-x: hidden;
+  max-width: 100vw;
 }
 
 /* Luxury typography styling */

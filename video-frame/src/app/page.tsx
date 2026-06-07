@@ -38,7 +38,7 @@ export default function HomePage() {
   const whatsappMessage = encodeURIComponent("Hello YR Digital Memories! I'd like to order a custom AR Photo Frame package.");
 
   return (
-    <div className="relative min-h-screen bg-[#0a0a0a] text-white selection:bg-[#D4AF37] selection:text-[#111111]">
+    <div className="relative min-h-screen bg-[#0a0a0a] text-white selection:bg-[#D4AF37] selection:text-[#111111] overflow-x-hidden">
       {/* Background ambient lighting */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(212,175,55,0.05)_0%,transparent_70%)] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(212,175,55,0.03)_0%,transparent_70%)] pointer-events-none" />
@@ -116,16 +116,16 @@ export default function HomePage() {
           <div className="flex items-center gap-2 border border-[#D4AF37]/30 bg-[#D4AF37]/5 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider text-[#D4AF37] uppercase">
             <Sparkles className="w-3.5 h-3.5" /> Augmented Reality Frame Platform
           </div>
-          <h1 className="text-4xl md:text-7xl font-extrabold font-serif tracking-wide leading-tight max-w-4xl">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-extrabold font-serif tracking-wide leading-tight max-w-4xl">
             Bring Your Printed <br className="hidden sm:inline" />
             <span className="gold-text-gradient">Photo Frames</span> to Life
           </h1>
-          <p className="text-gray-400 text-base md:text-xl max-w-2xl font-light leading-relaxed">
-            Instantly watch your wedding video play directly on top of your printed physical frame using your phone’s camera. No QR codes, pure magical recognition.
+          <p className="text-gray-400 text-sm sm:text-base md:text-xl max-w-2xl font-light leading-relaxed px-2 sm:px-0">
+            Instantly watch your wedding video play directly on top of your printed physical frame using your phone's camera. No QR codes, pure magical recognition.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 mt-8">
-            <Link href="/scan">
+          <div className="flex flex-col sm:flex-row gap-4 mt-6 sm:mt-8 w-full sm:w-auto">
+            <Link href="/scan" className="w-full sm:w-auto">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -258,7 +258,7 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-white/5 text-center text-xs text-white/40 tracking-wider flex flex-col gap-4">
+      <footer className="py-8 sm:py-12 border-t border-white/5 text-center text-xs text-white/40 tracking-wider flex flex-col gap-3 px-4">
         <div>&copy; {new Date().getFullYear()} YR Digital Memories. All Rights Reserved.</div>
         <div className="text-white/20">Designed for luxury studios and premium wedding organizers.</div>
       </footer>

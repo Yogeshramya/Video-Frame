@@ -166,10 +166,10 @@ export default function DashboardView() {
       </div>
 
       {/* Analytics Charts Grid */}
-      <div className="grid lg:grid-cols-2 gap-8">
+      <div className="grid lg:grid-cols-2 gap-4 sm:gap-8">
         
         {/* Custom SVG Daily Scans Bar Chart */}
-        <div className="glass-panel border border-white/5 p-6 rounded flex flex-col gap-4">
+        <div className="glass-panel border border-white/5 p-4 sm:p-6 rounded flex flex-col gap-4 overflow-hidden">
           <div>
             <h3 className="text-sm uppercase tracking-widest font-bold text-[#D4AF37]">Daily Scans</h3>
             <p className="text-xs text-white/40 mt-0.5">Frequency over the last 7 days</p>
@@ -232,7 +232,7 @@ export default function DashboardView() {
         </div>
 
         {/* Custom SVG Monthly Scans Area Chart */}
-        <div className="glass-panel border border-white/5 p-6 rounded flex flex-col gap-4">
+        <div className="glass-panel border border-white/5 p-4 sm:p-6 rounded flex flex-col gap-4 overflow-hidden">
           <div>
             <h3 className="text-sm uppercase tracking-widest font-bold text-[#D4AF37]">Monthly Scans</h3>
             <p className="text-xs text-white/40 mt-0.5">Scan distribution over the last 6 months</p>
@@ -312,7 +312,7 @@ export default function DashboardView() {
       </div>
 
       {/* Recent Activity List */}
-      <div className="glass-panel border border-white/5 p-6 rounded flex flex-col gap-6">
+      <div className="glass-panel border border-white/5 p-4 sm:p-6 rounded flex flex-col gap-4 sm:gap-6">
         <div>
           <h3 className="text-sm uppercase tracking-widest font-bold text-[#D4AF37]">Recent Scans</h3>
           <p className="text-xs text-white/40 mt-0.5 font-light">Real-time log of the latest 5 image detections</p>
@@ -331,25 +331,25 @@ export default function DashboardView() {
               });
 
               return (
-                <div key={scan.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-white/5 pb-4 last:border-0 last:pb-0 gap-2">
-                  <div className="flex items-center gap-3">
-                    <div className="w-1.5 h-1.5 bg-[#D4AF37] rounded-full" />
-                    <div>
-                      <div className="text-sm font-semibold">
+                <div key={scan.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-white/5 pb-4 last:border-0 last:pb-0 gap-2 sm:gap-3">
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <div className="w-1.5 h-1.5 bg-[#D4AF37] rounded-full mt-1.5 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs sm:text-sm font-semibold truncate">
                         {scan.memories?.customer_name || 'Deleted Memory'} 
-                        <span className="text-white/40 font-normal text-xs ml-2">({scan.memories?.memory_title || 'Unknown'})</span>
+                        <span className="text-white/40 font-normal text-[10px] sm:text-xs ml-1">({scan.memories?.memory_title || 'Unknown'})</span>
                       </div>
                       
                       {/* Meta details */}
-                      <div className="flex flex-wrap items-center gap-4 text-[10px] text-white/40 mt-1 font-light uppercase tracking-wider">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[9px] sm:text-[10px] text-white/40 mt-1 font-light uppercase tracking-wider">
                         <span className="flex items-center gap-1"><Smartphone className="w-3 h-3" /> {scan.device_type}</span>
                         <span className="flex items-center gap-1"><Globe className="w-3 h-3" /> {scan.browser}</span>
-                        <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {scan.city}, {scan.country}</span>
+                        <span className="flex items-center gap-1 min-w-0"><MapPin className="w-3 h-3 flex-shrink-0" /> <span className="truncate">{scan.city}, {scan.country}</span></span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="text-[10px] text-[#D4AF37] tracking-wider uppercase flex items-center gap-1.5 font-medium self-end sm:self-center">
+                  <div className="text-[10px] text-[#D4AF37] tracking-wider uppercase flex items-center gap-1.5 font-medium self-start sm:self-center whitespace-nowrap pl-4 sm:pl-0">
                     <Calendar className="w-3 h-3" /> {scanDate}
                   </div>
                 </div>

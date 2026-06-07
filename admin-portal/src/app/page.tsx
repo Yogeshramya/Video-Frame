@@ -149,7 +149,7 @@ export default function AdminPage() {
 
   // RENDER ADMIN DASHBOARD WRAPPER IF LOGGED IN
   return (
-    <div className="min-h-screen bg-[#080808] text-white flex flex-col">
+    <div className="min-h-screen bg-[#080808] text-white flex flex-col overflow-x-hidden">
       {/* Admin header */}
       <header className="glass-panel border-b border-white/5 py-4 px-4 sm:px-6 md:px-12 flex flex-col lg:flex-row items-center justify-between gap-4">
         <div className="flex items-center justify-between w-full lg:w-auto gap-4">
@@ -208,7 +208,7 @@ export default function AdminPage() {
       </header>
 
       {/* Main dashboard content container */}
-      <main className="flex-1 p-6 md:p-12 max-w-7xl w-full mx-auto">
+      <main className="flex-1 p-4 sm:p-6 md:p-12 max-w-7xl w-full mx-auto overflow-x-hidden">
         <AnimatePresence mode="wait">
           {activeTab === 'dashboard' && (
             <motion.div

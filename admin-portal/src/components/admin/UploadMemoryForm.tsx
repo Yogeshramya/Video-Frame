@@ -231,10 +231,10 @@ export default function UploadMemoryForm({ onUploadSuccess }: UploadMemoryFormPr
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="text-center mb-8">
-        <h2 className="text-xl md:text-2xl font-serif font-bold gold-text-gradient uppercase tracking-widest">Add New Digital Memory</h2>
-        <p className="text-xs text-white/40 mt-1 uppercase tracking-widest">Register frame image, video film, and compile target</p>
+    <div className="max-w-2xl mx-auto w-full">
+      <div className="text-center mb-6 sm:mb-8">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-serif font-bold gold-text-gradient uppercase tracking-widest">Add New Digital Memory</h2>
+        <p className="text-[10px] sm:text-xs text-white/40 mt-1 uppercase tracking-widest">Register frame image, video film, and compile target</p>
       </div>
 
       {error && (
@@ -280,7 +280,7 @@ export default function UploadMemoryForm({ onUploadSuccess }: UploadMemoryFormPr
       )}
 
       {step === 'idle' && (
-        <form onSubmit={handleFormSubmit} className="space-y-6 glass-panel border border-white/5 p-8 rounded shadow-lg relative">
+        <form onSubmit={handleFormSubmit} className="space-y-5 sm:space-y-6 glass-panel border border-white/5 p-4 sm:p-6 md:p-8 rounded shadow-lg relative">
           
           <div className="grid md:grid-cols-2 gap-6">
             {/* Customer Name */}
@@ -328,13 +328,13 @@ export default function UploadMemoryForm({ onUploadSuccess }: UploadMemoryFormPr
             />
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
             {/* Frame Image File Picker */}
             <div className="flex flex-col gap-2">
               <label className="text-xs uppercase tracking-widest text-[#D4AF37] font-semibold flex items-center gap-1.5">
                 <Upload className="w-3.5 h-3.5" /> Frame Image target
               </label>
-              <div className="relative border border-dashed border-white/10 hover:border-[#D4AF37] rounded transition-colors bg-black/30 p-6 flex flex-col items-center justify-center cursor-pointer">
+              <div className="relative border border-dashed border-white/10 hover:border-[#D4AF37] rounded transition-colors bg-black/30 p-4 sm:p-6 flex flex-col items-center justify-center cursor-pointer min-h-[100px]">
                 <input 
                   type="file" 
                   accept="image/png, image/jpeg, image/webp"
@@ -342,11 +342,11 @@ export default function UploadMemoryForm({ onUploadSuccess }: UploadMemoryFormPr
                   onChange={(e) => setImageFile(e.target.files?.[0] || null)}
                   className="absolute inset-0 opacity-0 cursor-pointer"
                 />
-                <Upload className="w-8 h-8 text-[#D4AF37] opacity-60 mb-2" />
-                <span className="text-xs font-semibold text-center truncate max-w-[200px]">
+                <Upload className="w-6 h-6 sm:w-8 sm:h-8 text-[#D4AF37] opacity-60 mb-2" />
+                <span className="text-xs font-semibold text-center truncate w-full text-center px-2">
                   {imageFile ? imageFile.name : 'Select Frame Target'}
                 </span>
-                <span className="text-[9px] text-white/30 uppercase tracking-widest mt-1">JPG, PNG, WEBP (Max 10MB)</span>
+                <span className="text-[9px] text-white/30 uppercase tracking-widest mt-1">JPG, PNG, WEBP</span>
               </div>
             </div>
 
@@ -355,7 +355,7 @@ export default function UploadMemoryForm({ onUploadSuccess }: UploadMemoryFormPr
               <label className="text-xs uppercase tracking-widest text-[#D4AF37] font-semibold flex items-center gap-1.5">
                 <Film className="w-3.5 h-3.5" /> Memory Video Film
               </label>
-              <div className="relative border border-dashed border-white/10 hover:border-[#D4AF37] rounded transition-colors bg-black/30 p-6 flex flex-col items-center justify-center cursor-pointer">
+              <div className="relative border border-dashed border-white/10 hover:border-[#D4AF37] rounded transition-colors bg-black/30 p-4 sm:p-6 flex flex-col items-center justify-center cursor-pointer min-h-[100px]">
                 <input 
                   type="file" 
                   accept="video/mp4, video/quicktime"
@@ -363,8 +363,8 @@ export default function UploadMemoryForm({ onUploadSuccess }: UploadMemoryFormPr
                   onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
                   className="absolute inset-0 opacity-0 cursor-pointer"
                 />
-                <Film className="w-8 h-8 text-[#D4AF37] opacity-60 mb-2" />
-                <span className="text-xs font-semibold text-center truncate max-w-[200px]">
+                <Film className="w-6 h-6 sm:w-8 sm:h-8 text-[#D4AF37] opacity-60 mb-2" />
+                <span className="text-xs font-semibold text-center truncate w-full text-center px-2">
                   {videoFile ? videoFile.name : 'Select Memory Video'}
                 </span>
                 <span className="text-[9px] text-white/30 uppercase tracking-widest mt-1">MP4, MOV (Max 500MB)</span>
