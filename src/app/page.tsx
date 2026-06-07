@@ -55,7 +55,6 @@ export default function HomePage() {
         <div className="hidden md:flex items-center gap-8 text-sm uppercase tracking-widest font-medium">
           <a href="#how-it-works" className="hover:text-[#D4AF37] transition-colors">How It Works</a>
           <a href="#contact" className="hover:text-[#D4AF37] transition-colors">Contact</a>
-          <Link href="/admin" className="text-xs text-white/40 hover:text-[#D4AF37] transition-colors font-serif">Admin Access</Link>
         </div>
 
         <div className="hidden md:block">
@@ -150,7 +149,7 @@ export default function HomePage() {
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* Step 1 */}
-            <div className="glass-panel-gold p-8 rounded flex flex-col gap-5 hover:border-[#D4AF37]/50 transition-all group">
+            <div className="w-full glass-panel-gold p-8 rounded flex flex-col gap-5 hover:border-[#D4AF37]/50 transition-all group">
               <div className="w-12 h-12 rounded bg-[#D4AF37]/10 flex items-center justify-center text-[#D4AF37] group-hover:scale-110 transition-transform">
                 <Upload className="w-6 h-6" />
               </div>

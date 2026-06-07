@@ -165,21 +165,24 @@ export default function AdminPage() {
         <div className="flex items-center bg-black/40 border border-white/5 p-1 rounded gap-1">
           <button 
             onClick={() => setActiveTab('dashboard')}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded text-xs uppercase tracking-widest font-bold transition-all cursor-pointer ${activeTab === 'dashboard' ? 'bg-[#D4AF37] text-black' : 'text-white/60 hover:text-white'}`}
+            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded text-xs uppercase tracking-widest font-bold transition-all cursor-pointer ${activeTab === 'dashboard' ? 'bg-[#D4AF37] text-black' : 'text-white/60 hover:text-white'}`}
           >
-            <LayoutDashboard className="w-3.5 h-3.5" /> Overview
+            <LayoutDashboard className="w-3.5 h-3.5" /> 
+            <span className="hidden sm:inline">Overview</span>
           </button>
           <button 
             onClick={() => setActiveTab('add')}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded text-xs uppercase tracking-widest font-bold transition-all cursor-pointer ${activeTab === 'add' ? 'bg-[#D4AF37] text-black' : 'text-white/60 hover:text-white'}`}
+            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded text-xs uppercase tracking-widest font-bold transition-all cursor-pointer ${activeTab === 'add' ? 'bg-[#D4AF37] text-black' : 'text-white/60 hover:text-white'}`}
           >
-            <PlusCircle className="w-3.5 h-3.5" /> Add Memory
+            <PlusCircle className="w-3.5 h-3.5" /> 
+            <span className="hidden sm:inline">Add Memory</span>
           </button>
           <button 
             onClick={() => setActiveTab('manage')}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded text-xs uppercase tracking-widest font-bold transition-all cursor-pointer ${activeTab === 'manage' ? 'bg-[#D4AF37] text-black' : 'text-white/60 hover:text-white'}`}
+            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded text-xs uppercase tracking-widest font-bold transition-all cursor-pointer ${activeTab === 'manage' ? 'bg-[#D4AF37] text-black' : 'text-white/60 hover:text-white'}`}
           >
-            <Database className="w-3.5 h-3.5" /> Manage
+            <Database className="w-3.5 h-3.5" /> 
+            <span className="hidden sm:inline">Manage</span>
           </button>
         </div>
 

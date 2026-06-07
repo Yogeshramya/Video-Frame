@@ -228,7 +228,7 @@ export default function WatchPage() {
             {/* Bottom Memory Plaque & Player Bar */}
             <div className="w-full flex flex-col gap-6 pointer-events-auto">
               {/* Gold Carved Memory Plaque */}
-              <div className="max-w-xl self-start bg-black/75 backdrop-blur-lg border border-[#D4AF37]/30 p-6 rounded shadow-2xl relative overflow-hidden">
+              <div className="w-full max-w-xl self-start bg-black/75 backdrop-blur-lg border border-[#D4AF37]/30 p-6 rounded shadow-2xl relative overflow-hidden">
                 {/* Gold corner accents */}
                 <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#D4AF37]" />
                 <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-[#D4AF37]" />
