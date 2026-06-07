@@ -91,13 +91,22 @@ export default function WatchPage() {
     if (memory && videoRef.current) {
       const playVideo = async () => {
         try {
-          // Force muted autoplay which browsers allow
-          videoRef.current!.muted = true;
-          setIsMuted(true);
+          // Try to autoplay with sound first (unmuted)
+          videoRef.current!.muted = false;
+          setIsMuted(false);
           await videoRef.current!.play();
           setIsPlaying(true);
-        } catch (err) {
-          console.log('Autoplay blocked, waiting for user interaction');
+        } catch (unmutedErr) {
+          console.log('Unmuted autoplay blocked, falling back to muted autoplay');
+          try {
+            // Force muted autoplay which browsers always allow
+            videoRef.current!.muted = true;
+            setIsMuted(true);
+            await videoRef.current!.play();
+            setIsPlaying(true);
+          } catch (mutedErr) {
+            console.log('Muted autoplay blocked, waiting for user interaction');
+          }
         }
       };
       playVideo();

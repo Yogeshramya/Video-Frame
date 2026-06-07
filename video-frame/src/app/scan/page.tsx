@@ -135,6 +135,45 @@ export default function ScannerPage() {
     };
   }, [activeIds]);
 
+  // Audio chime feedback using Web Audio API
+  const playDetectionSound = () => {
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      const now = ctx.currentTime;
+      
+      // First tone (higher frequency, shorter)
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(880, now); // A5 note
+      osc1.frequency.exponentialRampToValueAtTime(1200, now + 0.15);
+      gain1.gain.setValueAtTime(0.15, now);
+      gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      
+      // Second tone (slightly lower frequency, longer, creating a chime effect)
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(554.37, now); // C#5 note
+      osc2.frequency.exponentialRampToValueAtTime(880, now + 0.25);
+      gain2.gain.setValueAtTime(0.1, now);
+      gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 0.4);
+      osc2.stop(now + 0.65);
+    } catch (e) {
+      console.warn('Web Audio playback failed:', e);
+    }
+  };
+
   // 4. Listen to MindAR events
   useEffect(() => {
     if (!scriptsLoaded || activeIds.length === 0) return;
@@ -147,6 +186,9 @@ export default function ScannerPage() {
       const memoryIdAttr = targetEl.getAttribute('data-id');
       
       if (detectedId) return; // Prevent multiple triggers
+      
+      // Play detection audio feedback
+      playDetectionSound();
       
       const index = parseInt(indexAttr, 10);
       const memoryId = memoryIdAttr;
