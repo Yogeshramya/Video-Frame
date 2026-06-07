@@ -136,9 +136,7 @@ export default function UploadMemoryForm({ onUploadSuccess }: UploadMemoryFormPr
             scan_count: 0,
             status: 'active',
           }
-        ])
-        .select()
-        .single();
+        ]);
 
       if (dbError) throw dbError;
 

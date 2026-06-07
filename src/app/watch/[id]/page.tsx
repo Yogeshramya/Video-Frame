@@ -45,7 +45,7 @@ export default function WatchPage() {
           .from('memories')
           .select('*')
           .eq('id', id)
-          .single();
+          .maybeSingle();
 
         if (error || !data) {
           setError('Memory not found or has been disabled by administrator.');

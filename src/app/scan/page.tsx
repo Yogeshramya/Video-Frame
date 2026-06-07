@@ -43,7 +43,7 @@ export default function ScannerPage() {
           .from('settings')
           .select('value')
           .eq('key', 'targets')
-          .single();
+          .maybeSingle();
 
         if (error || !data) {
           // If settings doc doesn't exist, we fall back to sorting active memories by created_at
@@ -209,7 +209,7 @@ export default function ScannerPage() {
         .from('memories')
         .select('scan_count')
         .eq('id', memoryId)
-        .single();
+        .maybeSingle();
       
       if (mem) {
         await supabase
