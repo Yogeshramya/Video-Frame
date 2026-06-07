@@ -146,8 +146,8 @@ export default function UploadMemoryForm({ onUploadSuccess }: UploadMemoryFormPr
       setStep('compiling');
       setStatusMessage('Initializing MindAR Compiler...');
       
-      // Load MindAR compiler production bundle dynamically
-      await loadScript('https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image.prod.js');
+      // Load MindAR compiler production bundle dynamically (using UMD version 1.1.5 to expose global Compiler class)
+      await loadScript('https://cdn.jsdelivr.net/npm/mind-ar@1.1.5/dist/mindar-image.prod.js');
 
       // Fetch all active memories to compile
       setStatusMessage('Retrieving active images...');
