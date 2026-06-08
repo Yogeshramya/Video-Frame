@@ -419,19 +419,21 @@ export default function ScannerPage() {
 
       {/* Scanner UI Reticle overlay - Hidden when memory is actively projected */}
       {scriptsLoaded && isScanning && !activeMemory && (
-        <div className="absolute inset-0 z-10 flex flex-col justify-between items-center p-6 sm:p-8 pointer-events-none">
-          {/* Top scanning header */}
-          <div className="bg-black/50 backdrop-blur-sm border border-white/5 rounded-full px-4 py-1.5 sm:px-6 sm:py-2 mt-20 text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-[#D4AF37] flex items-center gap-1.5 sm:gap-2">
+        <div className="absolute inset-0 z-10 flex flex-col items-center px-6 pt-6 pb-8 sm:px-8 sm:pt-8 sm:pb-10 pointer-events-none">
+          {/* Top scanning header — w-fit prevents full-width stretch, keeping it centered */}
+          <div className="mt-16 sm:mt-20 w-fit bg-black/50 backdrop-blur-sm border border-white/5 rounded-full px-4 py-1.5 sm:px-6 sm:py-2 text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-[#D4AF37] flex items-center justify-center gap-1.5 sm:gap-2">
             <Camera className="w-3.5 h-3.5 animate-pulse" /> Point camera at physical frame
           </div>
 
-          {/* Central reticle design */}
-          <div className="relative w-56 h-56 min-[375px]:w-64 min-[375px]:h-64 md:w-80 md:h-80 border-2 border-white/10 rounded-lg flex items-center justify-center">
-            <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#D4AF37] rounded-tl" />
-            <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#D4AF37] rounded-tr" />
-            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-[#D4AF37] rounded-bl" />
-            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-[#D4AF37] rounded-br" />
-            <div className="absolute left-4 right-4 h-0.5 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent shadow-[0_0_10px_rgba(212,175,55,0.8)] animate-[bounce_3s_infinite]" />
+          {/* flex-1 wrapper ensures reticle is perfectly centered in remaining space */}
+          <div className="flex-1 flex items-center justify-center">
+            <div className="relative w-56 h-56 min-[375px]:w-64 min-[375px]:h-64 md:w-80 md:h-80 border-2 border-white/10 rounded-lg flex items-center justify-center">
+              <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#D4AF37] rounded-tl" />
+              <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#D4AF37] rounded-tr" />
+              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-[#D4AF37] rounded-bl" />
+              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-[#D4AF37] rounded-br" />
+              <div className="absolute left-4 right-4 h-0.5 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent shadow-[0_0_10px_rgba(212,175,55,0.8)] animate-[bounce_3s_infinite]" />
+            </div>
           </div>
 
           {/* Footer search message */}
