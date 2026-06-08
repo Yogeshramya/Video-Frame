@@ -70,15 +70,23 @@ export default function UploadMemoryForm({ onUploadSuccess }: UploadMemoryFormPr
 
     // Format & Size validations
     const allowedImageTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    const allowedVideoTypes = ['video/mp4', 'video/quicktime']; // MOV is quicktime
+    const allowedVideoTypes = ['video/mp4', 'video/quicktime'];
+    const allowedAudioTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/aac', 'audio/x-m4a', 'audio/m4a'];
 
     if (!allowedImageTypes.includes(imageFile.type)) {
       setError('Invalid image format. Only JPG, PNG, and WEBP are supported.');
       return;
     }
 
-    if (!allowedVideoTypes.includes(videoFile.type)) {
-      setError('Invalid video format. Only MP4 and MOV are supported.');
+    const ext = videoFile.name.split('.').pop()?.toLowerCase() || '';
+    const allowedVideoExts = ['mp4', 'mov'];
+    const allowedAudioExts = ['mp3', 'wav', 'ogg', 'aac', 'm4a', 'flac'];
+
+    const isVideo = allowedVideoTypes.includes(videoFile.type) || allowedVideoExts.includes(ext);
+    const isAudio = allowedAudioTypes.includes(videoFile.type) || allowedAudioExts.includes(ext);
+
+    if (!isVideo && !isAudio) {
+      setError('Invalid media format. Supported formats: MP4, MOV for video; MP3, WAV, M4A, AAC, OGG for audio.');
       return;
     }
 
@@ -350,24 +358,24 @@ export default function UploadMemoryForm({ onUploadSuccess }: UploadMemoryFormPr
               </div>
             </div>
 
-            {/* Video File Picker */}
+            {/* Video/Audio File Picker */}
             <div className="flex flex-col gap-2">
               <label className="text-xs uppercase tracking-widest text-[#D4AF37] font-semibold flex items-center gap-1.5">
-                <Film className="w-3.5 h-3.5" /> Memory Video Film
+                <Film className="w-3.5 h-3.5" /> Memory Video or Audio Film
               </label>
               <div className="relative border border-dashed border-white/10 hover:border-[#D4AF37] rounded transition-colors bg-black/30 p-4 sm:p-6 flex flex-col items-center justify-center cursor-pointer min-h-[100px]">
                 <input 
                   type="file" 
-                  accept="video/mp4, video/quicktime"
+                  accept="video/mp4, video/quicktime, audio/mpeg, audio/mp3, audio/wav, audio/ogg, audio/aac, audio/m4a, audio/x-m4a"
                   required
                   onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
                   className="absolute inset-0 opacity-0 cursor-pointer"
                 />
                 <Film className="w-6 h-6 sm:w-8 sm:h-8 text-[#D4AF37] opacity-60 mb-2" />
                 <span className="text-xs font-semibold text-center truncate w-full text-center px-2">
-                  {videoFile ? videoFile.name : 'Select Memory Video'}
+                  {videoFile ? videoFile.name : 'Select Memory Media'}
                 </span>
-                <span className="text-[9px] text-white/30 uppercase tracking-widest mt-1">MP4, MOV (Max 500MB)</span>
+                <span className="text-[9px] text-white/30 uppercase tracking-widest mt-1">MP4, MOV, MP3, WAV, M4A (Max 500MB)</span>
               </div>
             </div>
           </div>

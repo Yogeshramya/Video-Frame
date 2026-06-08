@@ -45,6 +45,13 @@ interface Memory {
   created_at: string;
 }
 
+const isAudioOnly = (url: string): boolean => {
+  if (!url) return false;
+  const cleanUrl = url.split('?')[0].split('#')[0];
+  const extension = cleanUrl.split('.').pop()?.toLowerCase();
+  return ['mp3', 'wav', 'ogg', 'aac', 'm4a', 'flac', 'wma'].includes(extension || '');
+};
+
 export default function ScannerPage() {
   const router = useRouter();
   const [scriptsLoaded, setScriptsLoaded] = useState(false);
@@ -620,6 +627,7 @@ export default function ScannerPage() {
             {/* Mapping active memories to their corresponding index targets */}
             {memories.map((m, index) => {
               const height = aspectRatios[m.id] || 0.75;
+              const audioOnly = isAudioOnly(m.video_url);
               return (
                 <a-entity 
                   key={m.id}
@@ -633,13 +641,15 @@ export default function ScannerPage() {
                     → Video plane covers exactly the 4 corners of the detected frame.
                     Using a-plane with flat shader is the most stable video texture pattern.
                   */}
-                  <a-plane
-                    width="1"
-                    height={height}
-                    position="0 0 0.001"
-                    rotation="0 0 0"
-                    material={`shader: flat; src: #video-${m.id}; side: double; transparent: true;`}
-                  />
+                  {!audioOnly && (
+                    <a-plane
+                      width="1"
+                      height={height}
+                      position="0 0 0.001"
+                      rotation="0 0 0"
+                      material={`shader: flat; src: #video-${m.id}; side: double; transparent: true;`}
+                    />
+                  )}
                 </a-entity>
               );
             })}
