@@ -120,7 +120,9 @@ export default function ScannerPage() {
 
         setMemories(orderedMemories);
 
-        // Preload aspect ratios
+        // Preload aspect ratios from the TARGET IMAGE
+        // In MindAR: width=1 = target image width, height=ratio = target image height
+        // This ensures the a-video plane covers EXACTLY the detected target area (4 corners)
         const ratios: { [key: string]: number } = {};
         await Promise.all(
           orderedMemories.map(m => {
@@ -132,8 +134,17 @@ export default function ScannerPage() {
                 resolve();
               };
               img.onerror = () => {
-                ratios[m.id] = 0.75; // 4:3 default fallback
-                resolve();
+                // Fallback: try loading from video metadata
+                const vid = document.createElement('video');
+                vid.src = m.video_url;
+                vid.onloadedmetadata = () => {
+                  ratios[m.id] = vid.videoHeight / vid.videoWidth;
+                  resolve();
+                };
+                vid.onerror = () => {
+                  ratios[m.id] = 0.75; // 4:3 final fallback
+                  resolve();
+                };
               };
             });
           })
@@ -571,12 +582,20 @@ export default function ScannerPage() {
                   data-index={index}
                   data-id={m.id}
                 >
+                  {/* 
+                    width="1"  = full target image width (1 MindAR unit)
+                    height     = target image height in MindAR units (naturalHeight/naturalWidth)
+                    → The plane exactly covers the 4 corners of the detected physical frame.
+                    shader:flat renders the video texture as-is (no lighting distortion).
+                    z=0.001 micro-offset prevents z-fighting with the frame surface.
+                  */}
                   <a-video
                     src={`#video-${m.id}`}
                     width="1"
                     height={height}
-                    position="0 0 0"
+                    position="0 0 0.001"
                     rotation="0 0 0"
+                    material="shader: flat; side: double;"
                   />
                 </a-entity>
               );
