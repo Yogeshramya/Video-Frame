@@ -56,7 +56,7 @@ export default function ScannerPage() {
   const [loadingMessage, setLoadingMessage] = useState('Initializing AR platform...');
   const [error, setError] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
-  const [isMuted, setIsMuted] = useState(false); // Play with sound by default!
+  const [isMuted, setIsMuted] = useState(true); // Start muted — required for autoPlay on mobile
 
   const isMutedRef = useRef(isMuted);
   const loggedIds = useRef<Set<string>>(new Set());
@@ -323,15 +323,18 @@ export default function ScannerPage() {
       console.log(`Detected target index: ${index}, memory: ${memoryId}`);
       setActiveMemory(foundMemory);
 
-      // Play A-Frame projected video
+      // Unmute video for sound (video already playing via autoPlay — texture is live)
       const video = document.querySelector(`#video-${memoryId}`) as HTMLVideoElement;
       if (video) {
-        video.muted = isMutedRef.current;
-        video.play().catch(err => {
-          console.log('Autoplay unmuted blocked, falling back to muted play', err);
+        video.currentTime = 0; // restart from beginning on each detection
+        if (!isMutedRef.current) {
+          video.muted = false; // unmute for sound if user hasn't muted
+        }
+        // Ensure playing (in case browser paused it)
+        video.play().catch(() => {
           video.muted = true;
           setIsMuted(true);
-          video.play().catch(e => console.error('Video play blocked completely', e));
+          video.play().catch(e => console.error('Video play blocked:', e));
         });
       }
 
@@ -350,8 +353,11 @@ export default function ScannerPage() {
       
       console.log(`Lost target frame: ${memoryId}`);
 
+      // Mute (don't pause — keeping video playing preserves the live WebGL texture)
       const video = document.querySelector(`#video-${memoryId}`) as HTMLVideoElement;
-      if (video) video.pause();
+      if (video) {
+        video.muted = true; // mute so it doesn't bleed audio in background
+      }
 
       setActiveMemory(prev => prev?.id === memoryId ? null : prev);
     };
@@ -409,11 +415,11 @@ export default function ScannerPage() {
   const toggleMute = () => {
     const newMuted = !isMuted;
     setIsMuted(newMuted);
+    isMutedRef.current = newMuted;
+    // Only update the currently playing/active video
     memories.forEach(m => {
       const video = document.querySelector(`#video-${m.id}`) as HTMLVideoElement;
-      if (video) {
-        video.muted = newMuted;
-      }
+      if (video) video.muted = newMuted;
     });
   };
 
@@ -601,9 +607,10 @@ export default function ScannerPage() {
                   src={m.video_url}
                   loop
                   playsInline
+                  autoPlay        // CRITICAL: A-Frame WebGL texture needs video playing at init
+                  muted           // Required for autoPlay on mobile (unmuted in handleTargetFound)
                   webkit-playsinline="true"
                   crossOrigin="anonymous"
-                  muted={isMuted}
                 />
               ))}
             </a-assets>
