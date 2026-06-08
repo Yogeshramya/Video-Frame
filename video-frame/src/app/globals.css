@@ -110,3 +110,24 @@ video[src=""] {
   object-fit: cover !important;
   z-index: 0 !important;
 }
+
+/* Keep video assets layout-visible but offscreen so iOS Safari decodes them for WebGL textures */
+a-assets {
+  display: block !important;
+  position: fixed !important;
+  top: -1000px !important;
+  left: -1000px !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0.001 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+  z-index: -100 !important;
+}
+
+a-assets video {
+  display: block !important;
+  width: 1px !important;
+  height: 1px !important;
+}
+
