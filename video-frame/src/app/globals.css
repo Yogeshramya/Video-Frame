@@ -86,13 +86,22 @@ h1, h2, h3, h4, h5, h6, .font-serif {
 }
 
 /* ─── MindAR / A-Frame full-screen fix ─────────────────────────────────────
-   MindAR injects a <video> (camera feed) and a <canvas> (AR render) directly
-   into <body> with inline pixel dimensions. These rules force them to always
-   cover the full viewport on every screen size / orientation.
-   The !important overrides MindAR's own inline width/height values.
+   Without 'embedded', A-Frame itself sets position:fixed 100% width/height.
+   We only need to:
+   1. Hide MindAR's built-in gray corner UI (we use our own gold reticle)
+   2. Ensure the camera feed video covers the full viewport
+   Note: video:not([src]) targets the getUserMedia camera stream only.
+         Our memory videos in <a-assets> all have src= attributes.
 ──────────────────────────────────────────────────────────────────────────── */
-body > video,
-body > canvas {
+
+/* Hide MindAR's built-in scanning corners and loading overlay */
+.mindar-ui-overlay {
+  display: none !important;
+}
+
+/* Camera feed video (getUserMedia stream has no src attribute) */
+video:not([src]),
+video[src=""] {
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
@@ -101,26 +110,3 @@ body > canvas {
   object-fit: cover !important;
   z-index: 0 !important;
 }
-
-/* MindAR scanning UI overlay wrapper */
-.mindar-ui-overlay {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-}
-
-/* A-Frame canvas element */
-.a-canvas {
-  width: 100vw !important;
-  height: 100vh !important;
-  object-fit: cover !important;
-}
-
-/* A-Frame scene element when embedded */
-a-scene {
-  width: 100% !important;
-  height: 100% !important;
-}
-

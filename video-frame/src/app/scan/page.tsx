@@ -211,63 +211,38 @@ export default function ScannerPage() {
     };
   }, [activeIds]);
 
-  // 3b. MutationObserver — fix MindAR injected video/canvas sizing in real-time
-  // MindAR appends <video> and <canvas> to <body> with inline pixel dimensions
-  // that override CSS. We watch for those injections and force full-screen styles.
+  // 3b. Hide MindAR's built-in UI and fix any remaining sizing issues
   useEffect(() => {
     if (!scriptsLoaded) return;
 
-    const applyFullScreenStyles = () => {
-      // Camera feed video
-      document.querySelectorAll('body > video').forEach(el => {
-        const v = el as HTMLElement;
-        v.style.cssText = [
-          'position: fixed',
-          'top: 0',
-          'left: 0',
-          'width: 100vw',
-          'height: 100vh',
-          'object-fit: cover',
-          'z-index: 0',
-        ].join(' !important; ') + ' !important;';
-      });
-
-      // AR render canvas
-      document.querySelectorAll('body > canvas, .a-canvas').forEach(el => {
-        const c = el as HTMLElement;
-        c.style.cssText = [
-          'position: fixed',
-          'top: 0',
-          'left: 0',
-          'width: 100vw',
-          'height: 100vh',
-          'object-fit: cover',
-          'z-index: 0',
-        ].join(' !important; ') + ' !important;';
-      });
-
-      // MindAR overlay container
+    const fixMindAR = () => {
+      // Hide MindAR's own gray scanning corners — we use our custom reticle
       document.querySelectorAll('.mindar-ui-overlay').forEach(el => {
-        const o = el as HTMLElement;
-        o.style.cssText = [
-          'position: fixed',
-          'top: 0',
-          'left: 0',
-          'width: 100vw',
-          'height: 100vh',
-        ].join(' !important; ') + ' !important;';
+        (el as HTMLElement).style.setProperty('display', 'none', 'important');
+      });
+
+      // Target only the camera feed video (no src = getUserMedia stream)
+      // Our memory videos in <a-assets> have src attributes, so :not([src]) is safe
+      document.querySelectorAll('video:not([src]), video[src=""]').forEach(el => {
+        const v = el as HTMLElement;
+        v.style.setProperty('position', 'fixed', 'important');
+        v.style.setProperty('top', '0', 'important');
+        v.style.setProperty('left', '0', 'important');
+        v.style.setProperty('width', '100vw', 'important');
+        v.style.setProperty('height', '100vh', 'important');
+        v.style.setProperty('object-fit', 'cover', 'important');
+        v.style.setProperty('z-index', '0', 'important');
       });
     };
 
-    // Run immediately and on a short delay to catch late injections
-    applyFullScreenStyles();
-    const t1 = setTimeout(applyFullScreenStyles, 500);
-    const t2 = setTimeout(applyFullScreenStyles, 1500);
-    const t3 = setTimeout(applyFullScreenStyles, 3000);
+    fixMindAR();
+    const t1 = setTimeout(fixMindAR, 300);
+    const t2 = setTimeout(fixMindAR, 1000);
+    const t3 = setTimeout(fixMindAR, 3000);
 
-    // Watch for MindAR dynamically adding elements
-    const observer = new MutationObserver(applyFullScreenStyles);
-    observer.observe(document.body, { childList: true, subtree: false });
+    // Watch for MindAR dynamically injecting elements
+    const observer = new MutationObserver(fixMindAR);
+    observer.observe(document.body, { childList: true, subtree: true });
 
     return () => {
       observer.disconnect();
@@ -452,7 +427,7 @@ export default function ScannerPage() {
     <div className="relative min-h-screen bg-black text-white overflow-hidden flex flex-col justify-between">
       
       {/* Absolute Home Button */}
-      <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20">
+      <div className="fixed top-4 left-4 sm:top-6 sm:left-6 z-50">
         <Link href="/">
           <button className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs uppercase tracking-widest font-bold bg-black/60 backdrop-blur-md border border-white/10 px-3 py-2 sm:px-4 sm:py-2.5 rounded hover:text-[#D4AF37] transition-colors cursor-pointer">
             <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Home
@@ -487,7 +462,7 @@ export default function ScannerPage() {
 
       {/* Scanner UI Reticle overlay - Hidden when memory is actively projected */}
       {scriptsLoaded && isScanning && !activeMemory && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center px-6 pt-6 pb-8 sm:px-8 sm:pt-8 sm:pb-10 pointer-events-none">
+        <div className="fixed inset-0 z-40 flex flex-col items-center px-6 pt-6 pb-8 sm:px-8 sm:pt-8 sm:pb-10 pointer-events-none">
           {/* Top scanning header — w-fit prevents full-width stretch, keeping it centered */}
           <div className="mt-16 sm:mt-20 w-fit bg-black/50 backdrop-blur-sm border border-white/5 rounded-full px-4 py-1.5 sm:px-6 sm:py-2 text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-[#D4AF37] flex items-center justify-center gap-1.5 sm:gap-2">
             <Camera className="w-3.5 h-3.5 animate-pulse" /> Point camera at physical frame
@@ -518,7 +493,7 @@ export default function ScannerPage() {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
-            className="absolute bottom-6 left-6 right-6 md:left-12 md:right-12 z-20 flex flex-col sm:flex-row items-center justify-between gap-4 pointer-events-none"
+            className="fixed bottom-6 left-6 right-6 md:left-12 md:right-12 z-50 flex flex-col sm:flex-row items-center justify-between gap-4 pointer-events-none"
           >
             {/* Memory details card */}
             <div className="w-full max-w-lg bg-black/85 backdrop-blur-md border border-[#D4AF37]/30 p-4 sm:p-5 rounded shadow-2xl relative overflow-hidden pointer-events-auto">
@@ -560,18 +535,15 @@ export default function ScannerPage() {
         )}
       </AnimatePresence>
 
-      {/* MindAR A-Frame Canvas Area */}
+      {/* MindAR A-Frame Canvas Area — no embedded = A-Frame owns full screen natively */}
       {scriptsLoaded && (
-        <div className="fixed inset-0 w-full h-full z-0">
-          <a-scene 
-            mindar-image="imageTargetSrc: /api/targets; autoStart: true; maxTrack: 1; filterMinCF: 0.0001; filterBeta: 0.001;" 
-            color-space="sRGB" 
-            embedded 
-            renderer="colorManagement: true, physicallyCorrectLights" 
-            vr-mode-ui="enabled: false" 
-            device-orientation-permission-ui="enabled: false"
-            className="w-full h-full"
-          >
+        <a-scene 
+          mindar-image="imageTargetSrc: /api/targets; autoStart: true; maxTrack: 1; filterMinCF: 0.0001; filterBeta: 0.001; uiLoading: no; uiScanning: no; uiError: no;"
+          color-space="sRGB"
+          renderer="colorManagement: true, physicallyCorrectLights"
+          vr-mode-ui="enabled: false"
+          device-orientation-permission-ui="enabled: false"
+        >
             <a-assets>
               {memories.map(m => (
                 <video
@@ -609,8 +581,7 @@ export default function ScannerPage() {
                 </a-entity>
               );
             })}
-          </a-scene>
-        </div>
+        </a-scene>
       )}
     </div>
   );
