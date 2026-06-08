@@ -481,6 +481,35 @@ export default function ScannerPage() {
   return (
     <div className="relative min-h-screen bg-black text-white overflow-hidden flex flex-col justify-between">
       
+      {/* Hidden but layout-visible container for video elements to keep WebGL textures updating on iOS Safari */}
+      <div 
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '1px',
+          height: '1px',
+          opacity: 0.001,
+          pointerEvents: 'none',
+          overflow: 'hidden',
+          zIndex: -100,
+        }}
+      >
+        {memories.map(m => (
+          <video
+            key={m.id}
+            id={`video-${m.id}`}
+            src={m.video_url}
+            loop
+            playsInline
+            autoPlay
+            muted
+            webkit-playsinline="true"
+            crossOrigin="anonymous"
+          />
+        ))}
+      </div>
+      
       {/* Absolute Home Button */}
       <div className="fixed top-4 left-4 sm:top-6 sm:left-6 z-50">
         <Link href="/">
@@ -599,21 +628,7 @@ export default function ScannerPage() {
           vr-mode-ui="enabled: false"
           device-orientation-permission-ui="enabled: false"
         >
-            <a-assets>
-              {memories.map(m => (
-                <video
-                  key={m.id}
-                  id={`video-${m.id}`}
-                  src={m.video_url}
-                  loop
-                  playsInline
-                  autoPlay        // CRITICAL: A-Frame WebGL texture needs video playing at init
-                  muted           // Required for autoPlay on mobile (unmuted in handleTargetFound)
-                  webkit-playsinline="true"
-                  crossOrigin="anonymous"
-                />
-              ))}
-            </a-assets>
+            <a-assets></a-assets>
 
             <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
@@ -631,15 +646,14 @@ export default function ScannerPage() {
                     width="1"  = full target image width (1 MindAR unit)
                     height     = target image height ratio (naturalH/naturalW)
                     → Video plane covers exactly the 4 corners of the detected frame.
-                    NOTE: Do NOT add a custom material= attribute here — it overrides
-                    A-Frame's internal video texture binding and breaks the video display.
+                    Using a-plane with flat shader is the most stable video texture pattern.
                   */}
-                  <a-video
-                    src={`#video-${m.id}`}
+                  <a-plane
                     width="1"
                     height={height}
                     position="0 0 0.001"
                     rotation="0 0 0"
+                    material={`shader: flat; src: #video-${m.id}; side: double; transparent: true;`}
                   />
                 </a-entity>
               );
