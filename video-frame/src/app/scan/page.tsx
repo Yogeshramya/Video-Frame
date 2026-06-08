@@ -303,11 +303,14 @@ export default function ScannerPage() {
   };
 
   // 4. Attach target event listeners
+  // Must wait for A-Frame to register <a-entity mindar-image-target> elements.
+  // querySelectorAll runs BEFORE A-Frame processes custom elements, so we use
+  // scene 'loaded' + retry timers as a reliable fallback.
   useEffect(() => {
     if (!scriptsLoaded || memories.length === 0) return;
 
-    const targetEntities = document.querySelectorAll('[mindar-image-target]');
-    
+    let attached = false;
+
     const handleTargetFound = (event: any) => {
       const targetEl = event.currentTarget;
       const indexAttr = targetEl.getAttribute('data-index');
@@ -325,7 +328,7 @@ export default function ScannerPage() {
       if (video) {
         video.muted = isMutedRef.current;
         video.play().catch(err => {
-          console.log('Autoplay unmuted blocked by browser policy, falling back to muted play', err);
+          console.log('Autoplay unmuted blocked, falling back to muted play', err);
           video.muted = true;
           setIsMuted(true);
           video.play().catch(e => console.error('Video play blocked completely', e));
@@ -348,19 +351,54 @@ export default function ScannerPage() {
       console.log(`Lost target frame: ${memoryId}`);
 
       const video = document.querySelector(`#video-${memoryId}`) as HTMLVideoElement;
-      if (video) {
-        video.pause();
-      }
+      if (video) video.pause();
 
       setActiveMemory(prev => prev?.id === memoryId ? null : prev);
     };
 
-    targetEntities.forEach(el => {
-      el.addEventListener('targetFound', handleTargetFound);
-      el.addEventListener('targetLost', handleTargetLost);
-    });
+    // Attach listeners to all mindar-image-target entities
+    const attachListeners = () => {
+      if (attached) return;
+      const targetEntities = document.querySelectorAll('[mindar-image-target]');
+      if (targetEntities.length === 0) return; // A-Frame not ready yet
+      
+      attached = true;
+      console.log(`Attaching listeners to ${targetEntities.length} target(s)`);
+      targetEntities.forEach(el => {
+        el.addEventListener('targetFound', handleTargetFound);
+        el.addEventListener('targetLost', handleTargetLost);
+      });
+    };
+
+    // Try immediately
+    attachListeners();
+
+    // Wait for A-Frame scene to finish loading
+    const sceneEl = document.querySelector('a-scene') as any;
+    if (sceneEl) {
+      if (sceneEl.hasLoaded) {
+        attachListeners();
+      } else {
+        sceneEl.addEventListener('loaded', attachListeners);
+      }
+      // MindAR fires arReady when tracking is initialized
+      sceneEl.addEventListener('arReady', attachListeners);
+    }
+
+    // Fallback retry chain in case of delayed A-Frame element registration
+    const t1 = setTimeout(attachListeners, 500);
+    const t2 = setTimeout(attachListeners, 1500);
+    const t3 = setTimeout(attachListeners, 3000);
 
     return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      if (sceneEl) {
+        sceneEl.removeEventListener('loaded', attachListeners);
+        sceneEl.removeEventListener('arReady', attachListeners);
+      }
+      const targetEntities = document.querySelectorAll('[mindar-image-target]');
       targetEntities.forEach(el => {
         el.removeEventListener('targetFound', handleTargetFound);
         el.removeEventListener('targetLost', handleTargetLost);
@@ -584,10 +622,10 @@ export default function ScannerPage() {
                 >
                   {/* 
                     width="1"  = full target image width (1 MindAR unit)
-                    height     = target image height in MindAR units (naturalHeight/naturalWidth)
-                    → The plane exactly covers the 4 corners of the detected physical frame.
-                    shader:flat renders the video texture as-is (no lighting distortion).
-                    z=0.001 micro-offset prevents z-fighting with the frame surface.
+                    height     = target image height ratio (naturalH/naturalW)
+                    → Video plane covers exactly the 4 corners of the detected frame.
+                    NOTE: Do NOT add a custom material= attribute here — it overrides
+                    A-Frame's internal video texture binding and breaks the video display.
                   */}
                   <a-video
                     src={`#video-${m.id}`}
@@ -595,7 +633,6 @@ export default function ScannerPage() {
                     height={height}
                     position="0 0 0.001"
                     rotation="0 0 0"
-                    material="shader: flat; side: double;"
                   />
                 </a-entity>
               );
