@@ -84,3 +84,43 @@ h1, h2, h3, h4, h5, h6, .font-serif {
   background: #BF953F;
   border-radius: 3px;
 }
+
+/* ─── MindAR / A-Frame full-screen fix ─────────────────────────────────────
+   MindAR injects a <video> (camera feed) and a <canvas> (AR render) directly
+   into <body> with inline pixel dimensions. These rules force them to always
+   cover the full viewport on every screen size / orientation.
+   The !important overrides MindAR's own inline width/height values.
+──────────────────────────────────────────────────────────────────────────── */
+body > video,
+body > canvas {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  object-fit: cover !important;
+  z-index: 0 !important;
+}
+
+/* MindAR scanning UI overlay wrapper */
+.mindar-ui-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+/* A-Frame canvas element */
+.a-canvas {
+  width: 100vw !important;
+  height: 100vh !important;
+  object-fit: cover !important;
+}
+
+/* A-Frame scene element when embedded */
+a-scene {
+  width: 100% !important;
+  height: 100% !important;
+}
+

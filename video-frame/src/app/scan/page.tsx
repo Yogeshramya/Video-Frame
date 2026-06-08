@@ -211,6 +211,74 @@ export default function ScannerPage() {
     };
   }, [activeIds]);
 
+  // 3b. MutationObserver — fix MindAR injected video/canvas sizing in real-time
+  // MindAR appends <video> and <canvas> to <body> with inline pixel dimensions
+  // that override CSS. We watch for those injections and force full-screen styles.
+  useEffect(() => {
+    if (!scriptsLoaded) return;
+
+    const applyFullScreenStyles = () => {
+      // Camera feed video
+      document.querySelectorAll('body > video').forEach(el => {
+        const v = el as HTMLElement;
+        v.style.cssText = [
+          'position: fixed',
+          'top: 0',
+          'left: 0',
+          'width: 100vw',
+          'height: 100vh',
+          'object-fit: cover',
+          'z-index: 0',
+        ].join(' !important; ') + ' !important;';
+      });
+
+      // AR render canvas
+      document.querySelectorAll('body > canvas, .a-canvas').forEach(el => {
+        const c = el as HTMLElement;
+        c.style.cssText = [
+          'position: fixed',
+          'top: 0',
+          'left: 0',
+          'width: 100vw',
+          'height: 100vh',
+          'object-fit: cover',
+          'z-index: 0',
+        ].join(' !important; ') + ' !important;';
+      });
+
+      // MindAR overlay container
+      document.querySelectorAll('.mindar-ui-overlay').forEach(el => {
+        const o = el as HTMLElement;
+        o.style.cssText = [
+          'position: fixed',
+          'top: 0',
+          'left: 0',
+          'width: 100vw',
+          'height: 100vh',
+        ].join(' !important; ') + ' !important;';
+      });
+    };
+
+    // Run immediately and on a short delay to catch late injections
+    applyFullScreenStyles();
+    const t1 = setTimeout(applyFullScreenStyles, 500);
+    const t2 = setTimeout(applyFullScreenStyles, 1500);
+    const t3 = setTimeout(applyFullScreenStyles, 3000);
+
+    // Watch for MindAR dynamically adding elements
+    const observer = new MutationObserver(applyFullScreenStyles);
+    observer.observe(document.body, { childList: true, subtree: false });
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [scriptsLoaded]);
+
+
+
   // Audio chime feedback using Web Audio API
   const playDetectionSound = () => {
     try {
