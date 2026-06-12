@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
-import { Camera, RefreshCw, AlertTriangle, ArrowLeft, Loader2, Sparkles, Volume2, VolumeX } from 'lucide-react';
+import { Camera, RefreshCw, AlertTriangle, ArrowLeft, Loader2, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -45,33 +45,20 @@ interface Memory {
   created_at: string;
 }
 
-const isAudioOnly = (url: string): boolean => {
-  if (!url) return false;
-  const cleanUrl = url.split('?')[0].split('#')[0];
-  const extension = cleanUrl.split('.').pop()?.toLowerCase();
-  return ['mp3', 'wav', 'ogg', 'aac', 'm4a', 'flac', 'wma'].includes(extension || '');
-};
+
 
 export default function ScannerPage() {
   const router = useRouter();
   const [scriptsLoaded, setScriptsLoaded] = useState(false);
   const [activeIds, setActiveIds] = useState<string[]>([]);
   const [memories, setMemories] = useState<Memory[]>([]);
-  const [aspectRatios, setAspectRatios] = useState<{ [key: string]: number }>({});
   const [activeMemory, setActiveMemory] = useState<Memory | null>(null);
   
   const [loadingMessage, setLoadingMessage] = useState('Initializing AR platform...');
   const [error, setError] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
-  const [isMuted, setIsMuted] = useState(true); // Start muted — required for autoPlay on mobile
 
-  const isMutedRef = useRef(isMuted);
   const loggedIds = useRef<Set<string>>(new Set());
-
-  // Keep isMutedRef updated
-  useEffect(() => {
-    isMutedRef.current = isMuted;
-  }, [isMuted]);
 
   // 1. Fetch active targets and memory records from Supabase
   useEffect(() => {
@@ -126,37 +113,6 @@ export default function ScannerPage() {
           .filter(Boolean) as Memory[];
 
         setMemories(orderedMemories);
-
-        // Preload aspect ratios from the TARGET IMAGE
-        // In MindAR: width=1 = target image width, height=ratio = target image height
-        // This ensures the a-video plane covers EXACTLY the detected target area (4 corners)
-        const ratios: { [key: string]: number } = {};
-        await Promise.all(
-          orderedMemories.map(m => {
-            return new Promise<void>((resolve) => {
-              const img = new Image();
-              img.src = m.image_url;
-              img.onload = () => {
-                ratios[m.id] = img.naturalHeight / img.naturalWidth;
-                resolve();
-              };
-              img.onerror = () => {
-                // Fallback: try loading from video metadata
-                const vid = document.createElement('video');
-                vid.src = m.video_url;
-                vid.onloadedmetadata = () => {
-                  ratios[m.id] = vid.videoHeight / vid.videoWidth;
-                  resolve();
-                };
-                vid.onerror = () => {
-                  ratios[m.id] = 0.75; // 4:3 final fallback
-                  resolve();
-                };
-              };
-            });
-          })
-        );
-        setAspectRatios(ratios);
       } catch (err) {
         console.error('Error fetching registry data:', err);
         setError('Failed to initialize active targets registry.');
@@ -330,21 +286,6 @@ export default function ScannerPage() {
       console.log(`Detected target index: ${index}, memory: ${memoryId}`);
       setActiveMemory(foundMemory);
 
-      // Unmute video for sound (video already playing via autoPlay — texture is live)
-      const video = document.querySelector(`#video-${memoryId}`) as HTMLVideoElement;
-      if (video) {
-        video.currentTime = 0; // restart from beginning on each detection
-        if (!isMutedRef.current) {
-          video.muted = false; // unmute for sound if user hasn't muted
-        }
-        // Ensure playing (in case browser paused it)
-        video.play().catch(() => {
-          video.muted = true;
-          setIsMuted(true);
-          video.play().catch(e => console.error('Video play blocked:', e));
-        });
-      }
-
       playDetectionSound();
 
       // Log analytics only once per session
@@ -352,21 +293,13 @@ export default function ScannerPage() {
         loggedIds.current.add(memoryId);
         logScanAnalytics(memoryId);
       }
+
+      // Redirect immediately to the watch page
+      router.push(`/watch/${memoryId}`);
     };
 
     const handleTargetLost = (event: any) => {
-      const targetEl = event.currentTarget;
-      const memoryId = targetEl.getAttribute('data-id');
-      
-      console.log(`Lost target frame: ${memoryId}`);
-
-      // Mute (don't pause — keeping video playing preserves the live WebGL texture)
-      const video = document.querySelector(`#video-${memoryId}`) as HTMLVideoElement;
-      if (video) {
-        video.muted = true; // mute so it doesn't bleed audio in background
-      }
-
-      setActiveMemory(prev => prev?.id === memoryId ? null : prev);
+      // Redirecting, no need to handle target loss anymore
     };
 
     // Attach listeners to all mindar-image-target entities
@@ -419,16 +352,7 @@ export default function ScannerPage() {
     };
   }, [scriptsLoaded, memories]);
 
-  const toggleMute = () => {
-    const newMuted = !isMuted;
-    setIsMuted(newMuted);
-    isMutedRef.current = newMuted;
-    // Only update the currently playing/active video
-    memories.forEach(m => {
-      const video = document.querySelector(`#video-${m.id}`) as HTMLVideoElement;
-      if (video) video.muted = newMuted;
-    });
-  };
+
 
   // 5. Log analytics entries to Supabase
   const logScanAnalytics = async (memoryId: string) => {
@@ -548,51 +472,36 @@ export default function ScannerPage() {
         </div>
       )}
 
-      {/* Floating active memory plaque overlay */}
+      {/* Full-screen redirection transition overlay */}
       <AnimatePresence>
         {activeMemory && (
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-6 left-6 right-6 md:left-12 md:right-12 z-50 flex flex-col sm:flex-row items-center justify-between gap-4 pointer-events-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 backdrop-blur-md text-center p-6 pointer-events-auto"
           >
-            {/* Memory details card */}
-            <div className="w-full max-w-lg bg-black/85 backdrop-blur-md border border-[#D4AF37]/30 p-4 sm:p-5 rounded shadow-2xl relative overflow-hidden pointer-events-auto">
-              <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#D4AF37]" />
-              <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-[#D4AF37]" />
-              <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-[#D4AF37]" />
-              <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-[#D4AF37]" />
-
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] uppercase tracking-widest text-[#D4AF37] font-bold flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#D4AF37] animate-pulse" /> Playing Augmented Memory
-                </span>
-                <h2 className="text-base sm:text-lg font-serif font-bold gold-text-gradient uppercase tracking-wider mt-1">
-                  {activeMemory.memory_title}
-                </h2>
-                <div className="text-xs text-white/80 font-semibold">{activeMemory.customer_name}</div>
-                {activeMemory.description && (
-                  <p className="text-gray-400 text-[10px] sm:text-xs font-light leading-relaxed border-t border-white/5 pt-1.5 mt-1.5 max-h-12 overflow-y-auto">
-                    {activeMemory.description}
-                  </p>
-                )}
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              className="flex flex-col items-center gap-4 max-w-sm"
+            >
+              <div className="relative">
+                <Loader2 className="w-16 h-16 animate-spin text-[#D4AF37]" />
+                <Sparkles className="w-6 h-6 text-[#D4AF37] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
               </div>
-            </div>
-
-            {/* Mute/Unmute Floating Button */}
-            <div className="pointer-events-auto">
-              <button
-                onClick={toggleMute}
-                className="bg-black/60 backdrop-blur-md border border-[#D4AF37]/30 hover:border-[#D4AF37] p-3.5 rounded-full text-white hover:text-[#D4AF37] transition-all cursor-pointer shadow-lg hover:shadow-[0_0_15px_rgba(212,175,55,0.2)]"
-              >
-                {isMuted ? (
-                  <VolumeX className="w-5 h-5 text-red-400" />
-                ) : (
-                  <Volume2 className="w-5 h-5 text-[#D4AF37]" />
-                )}
-              </button>
-            </div>
+              <h2 className="text-xl font-bold font-serif text-[#D4AF37] uppercase tracking-widest mt-4">
+                Memory Recognized
+              </h2>
+              <div className="text-sm font-semibold tracking-wider text-white">
+                {activeMemory.memory_title}
+              </div>
+              <div className="text-white/60 text-xs">{activeMemory.customer_name}</div>
+              <p className="text-[#D4AF37]/80 text-[10px] uppercase tracking-widest font-semibold mt-4 animate-pulse">
+                Preparing your premium video experience...
+              </p>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -606,51 +515,17 @@ export default function ScannerPage() {
           vr-mode-ui="enabled: false"
           device-orientation-permission-ui="enabled: false"
         >
-            <a-assets>
-              {memories.map(m => (
-                <video
-                  key={m.id}
-                  id={`video-${m.id}`}
-                  src={m.video_url}
-                  loop
-                  playsInline
-                  autoPlay        // CRITICAL: A-Frame WebGL texture needs video playing at init
-                  muted           // Required for autoPlay on mobile (unmuted in handleTargetFound)
-                  webkit-playsinline="true"
-                  crossOrigin="anonymous"
-                />
-              ))}
-            </a-assets>
-
             <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
             {/* Mapping active memories to their corresponding index targets */}
             {memories.map((m, index) => {
-              const height = aspectRatios[m.id] || 0.75;
-              const audioOnly = isAudioOnly(m.video_url);
               return (
                 <a-entity 
                   key={m.id}
                   mindar-image-target={`targetIndex: ${index}`}
                   data-index={index}
                   data-id={m.id}
-                >
-                  {/* 
-                    width="1"  = full target image width (1 MindAR unit)
-                    height     = target image height ratio (naturalH/naturalW)
-                    → Video plane covers exactly the 4 corners of the detected frame.
-                    Using a-plane with flat shader is the most stable video texture pattern.
-                  */}
-                  {!audioOnly && (
-                    <a-plane
-                      width="1"
-                      height={height}
-                      position="0 0 0.001"
-                      rotation="0 0 0"
-                      material={`shader: flat; src: #video-${m.id}; side: double; transparent: true;`}
-                    />
-                  )}
-                </a-entity>
+                />
               );
             })}
         </a-scene>

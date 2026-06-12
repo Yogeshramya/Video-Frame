@@ -234,6 +234,20 @@ export default function WatchPage() {
               </div>
             )}
 
+            {/* Big center play overlay if not playing */}
+            {!isPlaying && (
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-auto z-20">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={togglePlay}
+                  className="w-20 h-20 bg-black/60 backdrop-blur-md border-2 border-[#D4AF37] text-[#D4AF37] rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-black hover:shadow-[0_0_30px_rgba(212,175,55,0.4)] transition-all cursor-pointer"
+                >
+                  <Play className="w-8 h-8 fill-current translate-x-0.5" />
+                </motion.button>
+              </div>
+            )}
+
             {/* Bottom Memory Plaque & Player Bar */}
             <div className="w-full flex flex-col gap-3 sm:gap-6 pointer-events-auto">
               {/* Gold Carved Memory Plaque */}
