@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Camera, Play, Award, Eye, Calendar, MapPin, Smartphone, Globe, Loader2 } from 'lucide-react';
+import { Camera, Play, Award, Eye, Calendar, MapPin, Smartphone, Globe, Loader2, RotateCw } from 'lucide-react';
 
 
 interface ScanRecord {
@@ -33,79 +33,102 @@ export default function DashboardView() {
     monthly: { label: string; count: number }[];
   }>({ daily: [], monthly: [] });
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
+  const fetchDashboardData = useCallback(async (showLoading = true) => {
+    try {
+      if (showLoading) setLoading(true);
 
-        // 1. Fetch memories stats
-        const { data: memories, error: memError } = await supabase
-          .from('memories')
-          .select('id, scan_count, status, video_url, customer_name, memory_title');
+      // 1. Fetch memories stats
+      const { data: memories, error: memError } = await supabase
+        .from('memories')
+        .select('id, scan_count, status, video_url, customer_name, memory_title');
 
-        if (memError) throw memError;
+      if (memError) throw memError;
 
-        const totalFrames = memories?.length || 0;
-        const totalVideos = memories?.filter(m => m.video_url).length || 0;
-        const totalScans = memories?.reduce((acc, curr) => acc + (curr.scan_count || 0), 0) || 0;
-        const activeTargets = memories?.filter(m => m.status === 'active').length || 0;
+      const totalFrames = memories?.length || 0;
+      const totalVideos = memories?.filter(m => m.video_url).length || 0;
+      const totalScans = memories?.reduce((acc, curr) => acc + (curr.scan_count || 0), 0) || 0;
+      const activeTargets = memories?.filter(m => m.status === 'active').length || 0;
 
-        setStats({ totalFrames, totalVideos, totalScans, activeTargets });
+      setStats({ totalFrames, totalVideos, totalScans, activeTargets });
 
-        // 2. Fetch scan analytics
-        const { data: analytics, error: analyticsError } = await supabase
-          .from('scan_analytics')
-          .select('*, memories (customer_name, memory_title)')
-          .order('timestamp', { ascending: false });
+      // 2. Fetch scan analytics
+      const { data: analytics, error: analyticsError } = await supabase
+        .from('scan_analytics')
+        .select('*, memories (customer_name, memory_title)')
+        .order('timestamp', { ascending: false });
 
-        if (analyticsError) throw analyticsError;
+      if (analyticsError) throw analyticsError;
 
-        const rawScans: ScanRecord[] = analytics || [];
-        setRecentScans(rawScans.slice(0, 5));
+      const rawScans: ScanRecord[] = analytics || [];
+      setRecentScans(rawScans.slice(0, 5));
 
-        // 3. Process chart data
-        // Daily (last 7 days)
-        const dailyData = [];
-        for (let i = 6; i >= 0; i--) {
-          const date = new Date();
-          date.setDate(date.getDate() - i);
-          const dateString = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-          
-          // Count scans on this date
-          const count = rawScans.filter(s => {
-            const scanDate = new Date(s.timestamp);
-            return scanDate.toDateString() === date.toDateString();
-          }).length;
+      // 3. Process chart data
+      // Daily (last 7 days)
+      const dailyData = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateString = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        
+        // Count scans on this date
+        const count = rawScans.filter(s => {
+          const scanDate = new Date(s.timestamp);
+          return scanDate.toDateString() === date.toDateString();
+        }).length;
 
-          dailyData.push({ label: dateString, count });
-        }
-
-        // Monthly (last 6 months)
-        const monthlyData = [];
-        for (let i = 5; i >= 0; i--) {
-          const date = new Date();
-          date.setMonth(date.getMonth() - i);
-          const monthString = date.toLocaleDateString('en-US', { month: 'short' });
-          
-          // Count scans in this month
-          const count = rawScans.filter(s => {
-            const scanDate = new Date(s.timestamp);
-            return scanDate.getMonth() === date.getMonth() && scanDate.getFullYear() === date.getFullYear();
-          }).length;
-
-          monthlyData.push({ label: monthString, count });
-        }
-
-        setChartData({ daily: dailyData, monthly: monthlyData });
-      } catch (err) {
-        console.error('Error loading dashboard statistics:', err);
-      } finally {
-        setLoading(false);
+        dailyData.push({ label: dateString, count });
       }
-    };
 
-    fetchDashboardData();
+      // Monthly (last 6 months)
+      const monthlyData = [];
+      for (let i = 5; i >= 0; i--) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - i);
+        const monthString = date.toLocaleDateString('en-US', { month: 'short' });
+        
+        // Count scans in this month
+        const count = rawScans.filter(s => {
+          const scanDate = new Date(s.timestamp);
+          return scanDate.getMonth() === date.getMonth() && scanDate.getFullYear() === date.getFullYear();
+        }).length;
+
+        monthlyData.push({ label: monthString, count });
+      }
+
+      setChartData({ daily: dailyData, monthly: monthlyData });
+    } catch (err) {
+      console.error('Error loading dashboard statistics:', err);
+    } finally {
+      if (showLoading) setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchDashboardData(true);
+
+    // Subscribe to Postgres Realtime changes
+    const channel = supabase
+      .channel('dashboard-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'scan_analytics' },
+        () => {
+          fetchDashboardData(false);
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'memories' },
+        () => {
+          fetchDashboardData(false);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchDashboardData]);
 
   if (loading) {
     return (
@@ -122,6 +145,32 @@ export default function DashboardView() {
   return (
     <div className="space-y-8 select-none">
       
+      {/* Dashboard Header with Live status */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-4">
+        <div>
+          <h2 className="text-xl font-serif font-bold uppercase tracking-wider text-white">System Insights</h2>
+          <p className="text-xs text-white/40 font-light mt-0.5">Platform statistics and scan distribution</p>
+        </div>
+        <div className="flex items-center gap-4 self-end sm:self-auto">
+          {/* Pulsing Live indicator */}
+          <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-full">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">Live Updates</span>
+          </div>
+          
+          {/* Manual refresh button */}
+          <button 
+            onClick={() => fetchDashboardData(true)}
+            className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#D4AF37]/50 text-white hover:text-[#D4AF37] px-3.5 py-1.5 rounded transition-all cursor-pointer"
+          >
+            <RotateCw className="w-3 h-3" /> Refresh
+          </button>
+        </div>
+      </div>
+
       {/* Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {/* Total Frames */}
