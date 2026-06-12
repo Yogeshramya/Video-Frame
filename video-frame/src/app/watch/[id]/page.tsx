@@ -19,6 +19,13 @@ interface Memory {
   created_at: string;
 }
 
+const isAudioOnly = (url: string): boolean => {
+  if (!url) return false;
+  const cleanUrl = url.split('?')[0].split('#')[0];
+  const extension = cleanUrl.split('.').pop()?.toLowerCase();
+  return ['mp3', 'wav', 'ogg', 'aac', 'm4a', 'flac', 'wma'].includes(extension || '');
+};
+
 export default function WatchPage() {
   const params = useParams();
   const router = useRouter();
@@ -191,8 +198,69 @@ export default function WatchPage() {
         playsInline
         loop
         onClick={togglePlay}
-        className="absolute inset-0 w-full h-full object-cover z-0"
+        className={`absolute inset-0 w-full h-full object-cover z-0 ${isAudioOnly(memory.video_url) ? 'hidden' : ''}`}
       />
+
+      {/* Audio-only Premium Player Background & Rotating Art */}
+      {isAudioOnly(memory.video_url) && (
+        <div className="absolute inset-0 z-0 flex flex-col items-center justify-center p-6 select-none overflow-hidden">
+          {/* Blurred Album Art Background */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center filter blur-3xl opacity-40 scale-110"
+            style={{ backgroundImage: `url(${memory.image_url})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-black" />
+
+          {/* Central Rotating vinyl/CD or Premium Card */}
+          <div className="relative flex flex-col items-center justify-center z-10 gap-8">
+            <motion.div 
+              animate={isPlaying ? { rotate: 360 } : {}}
+              transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
+              className="relative w-48 h-48 sm:w-64 sm:h-64 rounded-full border-4 border-[#D4AF37]/50 p-1 bg-black shadow-[0_0_50px_rgba(212,175,55,0.2)] flex items-center justify-center overflow-hidden"
+            >
+              {/* Vinyl lines texture overlay */}
+              <div className="absolute inset-0 rounded-full border border-white/5 bg-[radial-gradient(circle,_transparent_40%,_rgba(0,0,0,0.85)_100%)] pointer-events-none z-10" />
+              <div className="absolute inset-2 rounded-full border border-white/10" />
+              <div className="absolute inset-6 rounded-full border border-white/10" />
+              <div className="absolute inset-12 rounded-full border border-white/10" />
+              <div className="absolute inset-18 rounded-full border border-white/10" />
+              
+              {/* Center Image */}
+              <div 
+                className="w-full h-full bg-cover bg-center rounded-full"
+                style={{ backgroundImage: `url(${memory.image_url})` }}
+              />
+
+              {/* Vinyl Center Spindle Hole */}
+              <div className="absolute w-8 h-8 rounded-full bg-black border-2 border-[#D4AF37] z-20 flex items-center justify-center">
+                <div className="w-2.5 h-2.5 rounded-full bg-white" />
+              </div>
+            </motion.div>
+
+            {/* Dynamic Sound Equalizer Animation */}
+            <div className="flex items-end justify-center gap-1.5 h-16 w-full mt-4">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((barIndex) => {
+                // Varying heights and animations
+                const speed = 0.8 + (barIndex % 3) * 0.2;
+                const activeHeight = 20 + (barIndex * 4) % 35;
+                return (
+                  <motion.div
+                    key={barIndex}
+                    animate={isPlaying && !isMuted ? { height: [8, activeHeight, 8] } : { height: 8 }}
+                    transition={{
+                      repeat: Infinity,
+                      duration: speed,
+                      ease: "easeInOut"
+                    }}
+                    className="w-1.5 rounded-full bg-[#D4AF37] shadow-[0_0_8px_rgba(212,175,55,0.6)]"
+                    style={{ height: 8 }}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Luxury Plaque Card & Overlay Controls */}
       <AnimatePresence>
@@ -259,8 +327,20 @@ export default function WatchPage() {
                 <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-[#D4AF37]" />
 
                 <div className="flex flex-col gap-1.5">
-                  <h1 className="text-lg sm:text-xl md:text-2xl font-bold font-serif gold-text-gradient uppercase tracking-wider">
+                  <h1 className="text-lg sm:text-xl md:text-2xl font-bold font-serif gold-text-gradient uppercase tracking-wider flex items-center gap-3">
                     {memory.memory_title}
+                    {isPlaying && !isMuted && (
+                      <span className="flex items-end gap-0.5 h-4 w-6 mb-1">
+                        {[1, 2, 3, 4].map((i) => (
+                          <motion.span
+                            key={i}
+                            animate={{ height: [4, 16, 4] }}
+                            transition={{ repeat: Infinity, duration: 0.5 + i * 0.15, ease: "easeInOut" }}
+                            className="w-1 bg-[#D4AF37] rounded-full"
+                          />
+                        ))}
+                      </span>
+                    )}
                   </h1>
                   <div className="text-xs sm:text-sm font-semibold text-white/90">{memory.customer_name}</div>
                   <div className="flex items-center gap-1.5 text-white/50 text-[10px] sm:text-xs mt-1">
